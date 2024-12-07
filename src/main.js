@@ -3,7 +3,6 @@ import hljs from "highlight.js";
 import ace from "ace-builds";
 import { createWorker } from "tesseract.js";
 
-
 let engine = null;
 let tesseractWorker = null;
 
@@ -17,13 +16,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const extractedText = document.getElementById("extracted-text");
   const outputDiv = document.getElementById("output");
   const statsParagraph = document.getElementById("stats");
+  const extractionCleanOutput = document.getElementById("extraction-output");
 
   // Initialize Tesseract worker
   tesseractWorker = await createWorker("eng");
 
   // Populate model selection dropdown
   const availableModels = prebuiltAppConfig.model_list
-    .filter((m) => m.model_id.startsWith("SmolLM2"))
+    // .filter((m) => m.model_id.includes("SmolLM2"))
+    .filter((m) => m.model_id.includes("Phi"))
     .map((m) => m.model_id);
 
   let selectedModel = availableModels[0];
@@ -83,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         "items": {
           "type": "object",
           "properties": {
-            "product_name": { "type": "string" },
+            "name": { "type": "string" },
             "quantity": { "type": "number" },
             "unit_price": { "type": "number" },
             "amount": { "type": "number" }
@@ -177,6 +178,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
+  const cleanExtractedText = async (engine, extractedText) => {
+    try {
+      const systemPrompt = `You are a text cleaning and normalization assistant. Your task is to transform raw OCR-extracted text into a clean, coherent, and human-readable form. You must remove extraneous characters, fix spacing and line breaks where possible, and preserve meaningful information. Do not infer missing data; simply correct obvious errors and output the cleaned text.
+      Return only the cleaned text and nothing else.`;
+
+      const prompt = `Extracted text: ${extractedText}`;
+
+      const request = {
+        stream: true,
+        stream_options: { include_usage: true },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
+        ],
+        max_tokens: 1024,
+      };
+
+      let curMessage = "";
+      let usage = null;
+      extractionCleanOutput.innerHTML =
+        '<div class="loading">Cleaning text...</div>';
+
+      const generator = await engine.chatCompletion(request);
+
+      for await (const chunk of generator) {
+        const curDelta = chunk.choices[0]?.delta.content;
+        if (curDelta) curMessage += curDelta;
+        if (chunk.usage) {
+          usage = chunk.usage;
+        }
+      }
+
+      const finalMessage = await engine.getMessage();
+      extractionCleanOutput.innerHTML = `<pre>${finalMessage}</pre>`;
+
+      return finalMessage;
+    } catch (error) {
+      console.error("Error cleaning extracted text:", error);
+      extractionCleanOutput.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      return null;
+    }
+  };
+
   // Generate button click handler
   document.getElementById("generate").onclick = async () => {
     try {
@@ -195,7 +239,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       }
 
-      const usage = await extractionEngine(engine, extractedText.value);
+      let value = extractedText.value;
+
+      // const cleanedText = await cleanExtractedText(engine, value);
+
+      // if (cleanedText) {
+      //   value = cleanedText;
+      // }
+
+      const usage = await extractionEngine(engine, value);
 
       if (usage) {
         const statsTextParts = [];

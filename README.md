@@ -121,3 +121,10 @@ This setup provides a complete pipeline for converting document images into stru
 ## Credits
 
 This project was adapted from [github-issue-generator-webgpu](https://github.com/Vaibhavs10/github-issue-generator-webgpu) by [Vaibhavs10](https://github.com/Vaibhavs10). Thank you for the inspiration and foundation!
+
+
+
+Other resources:
+- https://huggingface.co/collections/Xenova/transformersjs-demos-64f9c4f49c099d93dbc611df
+- https://github.com/huggingface/transformers.js-examples
+- https://smollm2.netlify.app
