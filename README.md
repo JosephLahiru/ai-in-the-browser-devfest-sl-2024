@@ -1,6 +1,26 @@
-
 ## Purpose
 This is a web application that combines OCR (Optical Character Recognition) and AI to extract structured data from images of invoices/receipts.
+
+
+## Running the Project
+
+1. **Clone Repository**
+
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Access Application**
+   - Open your browser and navigate to `http://localhost:3000`
+   - Ensure WebGPU is enabled (see WebGPU setup instructions below)
+
+
 
 
 #### Enabling WebGPU in Chrome
