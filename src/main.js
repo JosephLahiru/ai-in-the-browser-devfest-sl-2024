@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       }
 
-      await extractionEngine(engine, extractedText.value);
+      const usage = await extractionEngine(engine, extractedText.value);
 
       if (usage) {
         const statsTextParts = [];
