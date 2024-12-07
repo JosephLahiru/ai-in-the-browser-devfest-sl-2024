@@ -147,6 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           { role: "user", content: prompt },
         ],
         max_tokens: 1024,
+        temperature:0.1,
         response_format,
       };
 
@@ -180,8 +181,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const cleanExtractedText = async (engine, extractedText) => {
     try {
-      const systemPrompt = `You are a text cleaning and normalization assistant. Your task is to transform raw OCR-extracted text into a clean, coherent, and human-readable form. You must remove extraneous characters, fix spacing and line breaks where possible, and preserve meaningful information. Do not infer missing data; simply correct obvious errors and output the cleaned text.
-      Return only the cleaned text and nothing else.`;
+      const systemPrompt = `You are a text cleaning and normalization assistant. Your task is to transform raw OCR-extracted text into a clean, coherent, and human-readable form. You must remove extraneous characters, fix spacing and line breaks where possible, and preserve meaningful information. Do not infer missing data; simply correct obvious errors and output the cleaned text. Return only the cleaned text and nothing else. Do not include markdown formatting or table formatting. Return simple text, Take each line of text at a time. Do not create new information. NEVER lie or make things up.`;
 
       const prompt = `Extracted text: ${extractedText}`;
 
@@ -193,6 +193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           { role: "user", content: prompt },
         ],
         max_tokens: 1024,
+        temperature:0.1
       };
 
       let curMessage = "";
@@ -241,11 +242,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       let value = extractedText.value;
 
-      // const cleanedText = await cleanExtractedText(engine, value);
+      const cleanedText = await cleanExtractedText(engine, value);
 
-      // if (cleanedText) {
-      //   value = cleanedText;
-      // }
+      if (cleanedText) {
+        value = cleanedText;
+      }
 
       const usage = await extractionEngine(engine, value);
 
